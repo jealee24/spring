@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.newlecture.webprj.dao.NoticeDao">
+	<select id="getCount" resultType="Integer">
+		SELECT COUNT(*) CNT FROM NOTICES WHERE ${param1} LIKE '%${param2}%' 
+	</select>
+	<select id="getNotices" resultType="com.newlecture.webprj.vo.Notice">
+		SELECT * FROM
+		(
+			SELECT ROWNUM NUM, N.* FROM 
+			(
+				SELECT * FROM NOTICES 
+				WHERE ${param2} LIKE '%${param3}%' 
+				ORDER BY REGDATE DESC
+			) N
+		)
+		WHERE NUM BETWEEN 1 + (#{param1}-1)*15 AND 15 + (#{param1}-1)*15
+	</select>
+	<select id="getNotice" resultType="com.newlecture.webprj.vo.Notice">
+		SELECT * FROM NOTICES WHERE SEQ=#{seq}
+	</select>
+	<insert id="insert">
+		<selectKey order="BEFORE" keyProperty="seq" resultType="String">
+			SELECT MAX(TO_NUMBER(NVL(SEQ, '1')))+1 FROM NOTICES
+		</selectKey>
+		INSERT INTO NOTICES
+		(
+			SEQ, TITLE, CONTENT, WRITER, REGDATE, HIT, FILESRC
+		) 
+		VALUES
+		( 			
+			#{seq}, #{title}, #{content}, #{writer}, SYSDATE, 0, #{fileSrc}
+		)
+	</insert>
+	<!-- <update id="update">
+		UPDATE NOTICES SET TITLE=#{title}, CONTENT=#{content}, FILESRC=#{fileSrc} WHERE SEQ=#{seq}
+	</update> -->
+	<!-- <delete id="delete">
+		DELETE NOTICES WHERE SEQ=#{seq}
+	</delete> -->
+	
+	
+    
+
+</mapper>
